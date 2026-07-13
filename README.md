@@ -15,7 +15,7 @@ A reference implementation demonstrating:
 ## 📋 Quick Start
 
 ### Prerequisites
-- .NET 8+ SDK
+- .NET 10+ SDK
 - Azure subscription with resources in `australiaeast` region
 - Azure CLI for deployment
 
@@ -42,6 +42,7 @@ dotnet run --project src/MafDemo.Api
 - **[`.github/copilot-instructions.md`](.github/copilot-instructions.md)** — Implementation and architecture guidelines
 - **[`AGENTS.md`](AGENTS.md)** — Collaboration workflow and handoff rules
 - **[`docs/assisting-docs/maf-technologies.md`](docs/assisting-docs/maf-technologies.md)** — MAF technology reference
+- **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)** — Deployment guide (manual and GitHub Actions)
 
 ## 🏗️ Architecture
 
@@ -56,8 +57,9 @@ maf-demo/
 │   ├── spec.md               # Requirements and acceptance criteria
 │   ├── plans/
 │   │   └── maf-demo-build-plan.md
-│   └── assisting-docs/
-│       └── maf-technologies.md
+│   ├── assisting-docs/
+│   │   └── maf-technologies.md
+│   └── DEPLOYMENT.md
 └── .github/
     ├── workflows/            # CI/CD pipelines
     └── copilot-instructions.md
@@ -86,7 +88,7 @@ maf-demo/
 
 ## 🚀 Deployment
 
-See [`DEPLOYMENT.md`](docs/DEPLOYMENT.md) for detailed deployment instructions.
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for detailed deployment instructions.
 
 Quick reference:
 ```bash
