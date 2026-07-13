@@ -1,0 +1,20 @@
+You are about to be initialized into a blank chat session. This current session is at a high percentage context and must be closed.
+
+Before answering:
+1) Read `AGENTS.md` and `docs/spec.md`.
+2) Read this file (`changing-context.txt`) as the handoff prompt.
+3) Check current git state (`git status --short`, recent commits if useful).
+
+Then generate a concise technical handoff that includes ONLY work completed that is NOT already explicitly detailed in `docs/spec.md`:
+- Specific code modules/files changed
+- Bugs/issues resolved
+- Exact current in-progress item (or explicitly say none)
+- Validation/test status
+- Key files to load next session using `@file`
+
+Important constraints:
+- Do NOT restate the whole spec.
+- Do NOT invent work; derive from repository state/history.
+- Ask the human before implementing new changes.
+- dont edit this file 'changing-context.txt' but put your response in the agent chat window
+
