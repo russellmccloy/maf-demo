@@ -82,7 +82,7 @@ The app must:
 ### FR-6 Infrastructure
 
 - Bicep files shall exist under infra and support deployment to:
-  - Subscription: 52afa81a-5223-421c-8240-097df590b9fe
+  - Subscription: xxxxxxx-90b9fe
   - Resource Group: MAFDemo-rg
   - Region: australiaeast
 - Infra shall include:
