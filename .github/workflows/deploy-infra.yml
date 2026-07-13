@@ -1,0 +1,66 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    outputs:
+      app-service-name: ${{ steps.deploy.outputs.appServiceName }}
+      cosmos-endpoint: ${{ steps.deploy.outputs.cosmosEndpoint }}
+      search-endpoint: ${{ steps.deploy.outputs.searchEndpoint }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Validate Bicep template
+        run: |
+          cd infra
+          az bicep build --file main.bicep
+        shell: bash
+
+      - name: Deploy infrastructure
+        id: deploy
+        run: |
+          az deployment group create \
+            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+            --name maf-demo-deployment-$(date +%s) \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --template-file infra/main.bicep \
+            --parameters environment=prod \
+            --output none
+
+          # Retrieve outputs
+          OUTPUTS=$(az deployment group list \
+            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --query '[0].properties.outputs' --output json)
+
+          # Extract values (adjust keys based on your Bicep outputs)
+          APP_SERVICE_NAME=$(echo $OUTPUTS | jq -r '.appServiceName.value // "maf-demo-api"')
+          COSMOS_ENDPOINT=$(echo $OUTPUTS | jq -r '.cosmosEndpoint.value // ""')
+          SEARCH_ENDPOINT=$(echo $OUTPUTS | jq -r '.searchEndpoint.value // ""')
+
+          echo "appServiceName=$APP_SERVICE_NAME" >> $GITHUB_OUTPUT
+          echo "cosmosEndpoint=$COSMOS_ENDPOINT" >> $GITHUB_OUTPUT
+          echo "searchEndpoint=$SEARCH_ENDPOINT" >> $GITHUB_OUTPUT
+
+          echo "✅ Infrastructure deployed successfully"
+        shell: bash
+
+      - name: Logout from Azure
+        run: az logout
+        if: always()
