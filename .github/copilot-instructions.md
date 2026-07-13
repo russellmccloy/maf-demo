@@ -48,11 +48,101 @@ Rules:
 - Always send a terminal event (done or error).
 - Include tool lifecycle metadata whenever tools are invoked.
 
+### Tool Lifecycle Events
+Tool events must include the following fields:
+
+**toolStarted**
+```json
+{
+  "type": "toolStarted",
+  "toolId": "string (stable identifier)",
+  "toolName": "string (human-readable name)",
+  "timestamp": "ISO8601",
+  "input": "object or string (tool arguments)"
+}
+```
+
+**toolCompleted**
+```json
+{
+  "type": "toolCompleted",
+  "toolId": "string",
+  "toolName": "string",
+  "timestamp": "ISO8601",
+  "durationMs": "number",
+  "output": "object or string (tool result)",
+  "status": "success"
+}
+```
+
+**toolFailed**
+```json
+{
+  "type": "toolFailed",
+  "toolId": "string",
+  "toolName": "string",
+  "timestamp": "ISO8601",
+  "durationMs": "number",
+  "error": "string (error message)",
+  "status": "failed"
+}
+```
+
+## Tool Registry and Lifecycle
+- Register tools with a stable tool ID (e.g., "utc_now", "echo", "simple_math").
+- Tool IDs must remain consistent between client and runtime for the lifecycle of the demo.
+- Implement ToolRegistry as a simple registry pattern that maps tool ID → AIFunction implementation.
+- Tool functions must return deterministic, serializable results.
+- Emit tool events synchronously with tool execution; ensure events are delivered before the tool result is included in the assistant response.
+
 ## Data and Search Rules
-- Store chat sessions and messages in Cosmos DB.
-- Index document chunks in Azure AI Search.
-- Keep chunking simple and deterministic.
-- Attach retrieval metadata to retrievalUsed events.
+
+### Cosmos DB Model Conventions
+- Entity IDs: use "entityType-guid" format (e.g., "session-abc123", "message-def456").
+- Container names: plural and lowercase (e.g., "sessions", "messages", "documents").
+- Partition keys:
+  - "sessions" container: partition by sessionId.
+  - "messages" container: partition by sessionId (for efficient per-session queries).
+  - "documents" container: partition by uploadedBy or /id if single-user demo.
+- Always include `createdAt` and `updatedAt` timestamps (ISO8601 UTC).
+
+### Document Chunking Rules
+- Use fixed-size chunks: **500 tokens or 1500 characters** (with overlap of **100 tokens or 300 characters**).
+- Include metadata with every chunk:
+  - `sourceFilename`: original filename uploaded.
+  - `chunkIndex`: zero-based chunk number within document.
+  - `documentId`: reference to parent document.
+- Chunking must be **deterministic**: uploading the same file twice produces identical chunks with identical IDs.
+- Chunk ID format: "chunk-{documentId}-{chunkIndex}".
+
+### Azure AI Search Index Structure
+- Index name: "rag-documents".
+- Key field: "chunkId" (must be unique).
+- Searchable fields: "chunkText", "metadata".
+- Retrievable fields: "chunkId", "chunkText", "sourceFilename", "documentId", "chunkIndex".
+- Default retrieval: top-k = 3 chunks sorted by search relevance score.
+- Indexing must happen synchronously after chunking so chunks are immediately queryable.
+
+### Retrieval Metadata in Events
+When a RAG query is used, attach full retrieval context to `retrievalUsed` event:
+
+```json
+{
+  "type": "retrievalUsed",
+  "timestamp": "ISO8601",
+  "query": "string (user question fragment used for search)",
+  "chunks": [
+    {
+      "chunkId": "string",
+      "sourceFilename": "string",
+      "chunkIndex": "number",
+      "chunkText": "string",
+      "relevanceScore": "number (0.0-1.0 or search engine native score)"
+    }
+  ],
+  "totalMatches": "number"
+}
+```
 
 ## Simplicity Rules
 - Keep files small and focused.
@@ -64,10 +154,10 @@ Rules:
 Expect configuration for:
 - OpenAI endpoint and key
 - model deployment name (gpt-5.4)
-- Cosmos DB settings
+- Cosmos DB settings (endpoint, key, database name)
 - Azure AI Search endpoint, key, and index name
 
-Fail fast when required configuration is missing.
+Fail fast when required configuration is missing. Log which config is missing at startup.
 
 ## Infrastructure Rules
 - Infrastructure code must live under infra.
@@ -81,9 +171,12 @@ Fail fast when required configuration is missing.
 ## Testing and Validation Rules
 For new runtime features, verify:
 - SSE event order and terminal behavior.
-- Tool lifecycle event emission.
-- Chat persistence and reload.
-- Upload/index/retrieve flow for Azure AI Search RAG.
+- Tool lifecycle event emission (toolStarted → toolCompleted/toolFailed).
+- Chat persistence and reload (session reopen restores full history).
+- Upload/index/retrieve flow for Azure AI Search RAG:
+  - File upload triggers indexing.
+  - Query finds indexed chunks within 1 second.
+  - Chunk content appears correctly in UI.
 
 ## Change Management
 - Prefer minimal patches over broad rewrites.
