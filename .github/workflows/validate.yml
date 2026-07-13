@@ -1,0 +1,44 @@
+name: Validate Bicep Templates
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/validate.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-bicep:
+    name: Validate Bicep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Azure CLI
+        uses: azure/setup-cli@v3
+
+      - name: Validate main.bicep
+        run: |
+          cd infra
+          az bicep build --file main.bicep
+        shell: bash
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Preview deployment changes
+        run: |
+          az deployment group what-if \
+            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --template-file infra/main.bicep \
+            --parameters environment=prod
+        shell: bash
+        continue-on-error: true
+
+      - name: Logout from Azure
+        run: az logout
+        if: always()
