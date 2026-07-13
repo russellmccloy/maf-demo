@@ -120,5 +120,4 @@ Build a minimal, demo-friendly standalone ASP.NET Core app that mirrors the core
 ## 💡 Further Considerations
 
 1. gpt-5.4 deployment policy: strict mode, fail deployment if gpt-5.4 GlobalStandard cannot be provisioned (no fallback model for v1).
-2. Cosmos free tier constraint note: free tier applies to one account per subscription and may be subject to region/account limits; template should expose a switch to disable free-tier flag when not eligible.
-3. SSE contract stability: lock event names in spec before coding to avoid frontend/backend drift.
+2. SSE contract stability: lock event names in spec before coding and keep the envelope shape aligned with the Blueprints chat stream event envelope pattern to avoid frontend/backend drift.
