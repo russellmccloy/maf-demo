@@ -9,6 +9,7 @@ param modelVersion string = '1'
 @allowed([
   'GlobalStandard'
   'Standard'
+  'GlobalBatch'
 ])
 param deploymentSkuName string = 'GlobalStandard'
 

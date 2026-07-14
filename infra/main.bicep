@@ -23,12 +23,13 @@ param openAiDeploymentName string = 'gpt-5.4'
 param openAiModelName string = 'gpt-5.4'
 
 @description('Azure OpenAI model version for the deployment.')
-param openAiModelVersion string = '1'
+param openAiModelVersion string = '2026-03-05'
 
 @description('Azure OpenAI deployment SKU name.')
 @allowed([
   'GlobalStandard'
   'Standard'
+  'GlobalBatch'
 ])
 param openAiDeploymentSkuName string = 'GlobalStandard'
 

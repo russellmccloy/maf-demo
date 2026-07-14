@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "41969376078353745"
+      "templateHash": "3444896702897797803"
     }
   },
   "parameters": {
@@ -58,7 +58,7 @@
     },
     "openAiModelVersion": {
       "type": "string",
-      "defaultValue": "1",
+      "defaultValue": "2026-03-05",
       "metadata": {
         "description": "Azure OpenAI model version for the deployment."
       }
@@ -68,7 +68,8 @@
       "defaultValue": "GlobalStandard",
       "allowedValues": [
         "GlobalStandard",
-        "Standard"
+        "Standard",
+        "GlobalBatch"
       ],
       "metadata": {
         "description": "Azure OpenAI deployment SKU name."
@@ -496,7 +497,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "10288309112859843431"
+              "templateHash": "12829494111122979655"
             }
           },
           "parameters": {
@@ -527,7 +528,8 @@
               "defaultValue": "GlobalStandard",
               "allowedValues": [
                 "GlobalStandard",
-                "Standard"
+                "Standard",
+                "GlobalBatch"
               ]
             },
             "deploymentCapacity": {

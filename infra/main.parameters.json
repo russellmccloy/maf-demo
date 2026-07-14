@@ -18,13 +18,13 @@
       "value": "gpt-5.4"
     },
     "openAiModelVersion": {
-      "value": "1"
+      "value": "2026-03-05"
     },
     "openAiDeploymentSkuName": {
-      "value": "GlobalStandard"
+      "value": "GlobalBatch"
     },
     "openAiDeploymentCapacity": {
-      "value": 1
+      "value": 250
     },
     "searchSku": {
       "value": "basic"
