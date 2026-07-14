@@ -35,7 +35,7 @@ jobs:
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --template-file infra/main.bicep \
-            --parameters environment=prod
+            --parameters infra/main.bicepparam
         shell: bash
         continue-on-error: true
 
