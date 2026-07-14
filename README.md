@@ -1,58 +1,61 @@
 # maf-demo
 
-A minimal, demo-friendly **standalone ASP.NET Core application** that showcases core Microsoft Agent Framework (MAF) patterns inspired by Blueprints.
+A docs-first repository for building a minimal, demo-friendly standalone ASP.NET Core application that showcases core Microsoft Agent Framework (MAF) patterns inspired by Blueprints.
 
 ## 🎯 What This Is
 
-A reference implementation demonstrating:
+A planned reference implementation demonstrating:
+
 - **MAF runtime composition** — BuildAgentCore-style agent pipeline
 - **Azure OpenAI Responses API** — gpt-5.4 model integration
-- **Chat persistence** — Cosmos DB session and message storage
+- **Chat persistence** — Cosmos DB via ChatHistoryProvider-based persistence
 - **RAG with Azure AI Search** — Document upload, chunking, indexing, and retrieval
 - **Server-Sent Events (SSE)** — Streaming tool lifecycle and retrieval events to UI
-- **Infrastructure as Code** — Complete Bicep templates for deployable infrastructure
+- **Infrastructure as Code** — Bicep templates under `infra/`
+
+## 📋 Current Status
+
+This repository currently contains product docs, plan docs, and workflow scaffolding.
+
+- Product requirements are defined in `docs/spec.md`.
+- Implementation order is defined in `docs/plans/maf-demo-build-plan.md`.
+- Runtime and infrastructure code directories (`src/` and `infra/`) are planned but not yet present in this repo snapshot.
 
 ## 📋 Quick Start
 
 ### Prerequisites
-- .NET 10+ SDK
-- Azure subscription with resources in `australiaeast` region
-- Azure CLI for deployment
 
-### Local Development
+- Markdown-capable editor (VS Code recommended)
+- Azure subscription details ready for later implementation phases
+
+### Docs-First Workflow
+
 ```bash
-# Clone and build
+# Clone and review documentation
 git clone https://github.com/russellmccloy/maf-demo.git
 cd maf-demo
-dotnet build
-
-# Configure (see docs/spec.md for required settings)
-# dotnet user-secrets set "AzureOpenAI:Endpoint" "https://..."
-# dotnet user-secrets set "AzureOpenAI:Key" "..."
-
-# Run
-dotnet run --project src/MafDemo.Api
-# Open http://localhost:5000
 ```
+
+Read in this order:
+
+1. `docs/spec.md`
+2. `docs/plans/maf-demo-build-plan.md`
+3. `.github/copilot-instructions.md`
+4. `AGENTS.md`
 
 ## 📚 Documentation
 
 - **[`docs/spec.md`](docs/spec.md)** — Product specification and acceptance criteria
 - **[`docs/plans/maf-demo-build-plan.md`](docs/plans/maf-demo-build-plan.md)** — 8-phase implementation roadmap
-- **[`.github/copilot-instructions.md`](.github/copilot-instructions.md)** — Implementation and architecture guidelines
+- **[`.github/copilot-instructions.md`](.github/copilot-instructions.md)** — Coding guardrails for contributors and agents
 - **[`AGENTS.md`](AGENTS.md)** — Collaboration workflow and handoff rules
 - **[`docs/assisting-docs/maf-technologies.md`](docs/assisting-docs/maf-technologies.md)** — MAF technology reference
 - **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)** — Deployment guide (manual and GitHub Actions)
 
 ## 🏗️ Architecture
 
-```
+```markdown
 maf-demo/
-├── src/
-│   └── MafDemo.Api/          # Single ASP.NET Core app (API + static UI)
-├── infra/
-│   ├── main.bicep            # Root deployment
-│   └── modules/              # Resource modules (web, cosmos, search, openai, config)
 ├── docs/
 │   ├── spec.md               # Requirements and acceptance criteria
 │   ├── plans/
@@ -65,39 +68,43 @@ maf-demo/
     └── copilot-instructions.md
 ```
 
-## 🔑 Key Features
+Planned directories (not yet present in this snapshot):
+
+- `src/` for application code
+- `infra/` for Bicep templates
+
+## 🔑 Target Features
 
 ### Streaming API
+
 - **SSE endpoint** for real-time chat streaming
 - **Tool lifecycle events** — toolStarted, toolCompleted, toolFailed
 - **RAG events** — retrievalUsed with chunk metadata
 - **Terminal events** — done or error
 
 ### Persistence
+
 - **Cosmos DB** — Sessions and message history
 - **Azure AI Search** — Document chunks indexed for retrieval
 
 ### Tools
+
 - Simple **ToolRegistry** pattern with stable tool IDs
 - Example tools: `utc_now`, `echo`, `simple_math`
 
 ### Infrastructure
-- **Bicep templates** under `infra/`
+
+- **Bicep templates** under `infra/` (planned)
 - Target: `australiaeast` region, `MAFDemo-rg` resource group
 - Resources: App Service, Cosmos DB, Azure AI Search, Azure OpenAI (gpt-5.4)
 
 ## 🚀 Deployment
 
-See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for detailed deployment instructions.
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for deployment guidance and workflow intent.
 
-Quick reference:
-```bash
-cd infra
-az deployment group create \
-  --resource-group MAFDemo-rg \
-  --template-file main.bicep \
-  --parameters environment=prod
-```
+Note: deployment commands assume `infra/` and application artifacts exist.
+
+Quick reference becomes applicable once infrastructure templates are added.
 
 ## 🧪 Validation
 
