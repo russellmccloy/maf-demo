@@ -10,7 +10,7 @@ The app must:
 - Use direct Azure OpenAI endpoint-based integration in code (no Foundry agent runtime dependency).
 - Allow the Azure OpenAI endpoint to be provisioned from Foundry, but treat it as a standard Azure OpenAI endpoint at runtime.
 - Use gpt-5.4 as the required model deployment.
-- Persist chat data in Cosmos DB.
+- Persist chat data in Cosmos DB through ChatHistoryProvider-based persistence.
 - Use Azure AI Search for document indexing and retrieval (RAG).
 - Stream full server events to the UI over SSE, including tool lifecycle events.
 - Include infra Bicep in an infra folder at repo root.
@@ -72,7 +72,7 @@ The app must:
 
 ### FR-4 Chat persistence
 
-- The app shall store chat sessions and messages in Cosmos DB.
+- The app shall store chat sessions and messages in Cosmos DB through ChatHistoryProvider-based persistence.
 - The app shall support reloading an existing session history.
 - The app shall implement chat history persistence through ChatHistoryProvider-based wiring.
 - The ChatHistoryProvider implementation shall be stateless per provider instance and keep session-specific values in AgentSession state.

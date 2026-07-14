@@ -1,6 +1,6 @@
 # 🗺️ Plan: Standalone MAF Demo Chat App
 
-Build a minimal, demo-friendly standalone ASP.NET Core app that mirrors the core BuildAgentCore pipeline from Blueprints, uses Azure OpenAI Responses API with gpt-5.4, persists chat data in Cosmos DB, and provides RAG via Azure AI Search. Runtime code uses direct Azure OpenAI endpoint integration (no Foundry runtime dependency), even if the endpoint is provisioned via Foundry.
+Build a minimal, demo-friendly standalone ASP.NET Core app that mirrors the core BuildAgentCore pipeline from Blueprints, uses Azure OpenAI Responses API with gpt-5.4, persists chat data in Cosmos DB through a ChatHistoryProvider-based implementation, and provides RAG via Azure AI Search. Runtime code uses direct Azure OpenAI endpoint integration (no Foundry runtime dependency), even if the endpoint is provisioned via Foundry.
 
 ---
 
@@ -10,7 +10,7 @@ Build a minimal, demo-friendly standalone ASP.NET Core app that mirrors the core
 
 Product and repo-level documentation to establish contract and constraints.
 
-1.1. **Update `docs/spec.md`** with the product spec and non-negotiable requirements:
+1.1. [x] **Update `docs/spec.md`** with the product spec and non-negotiable requirements:
 
 - Responses API only based on these Microsoft Docs: <https://learn.microsoft.com/azure/foundry/openai/how-to/responses>
 - Do not use Foundry hosted agent runtime APIs in this app. If endpoint details come from Foundry provisioning, still use standard Azure OpenAI endpoint integration in app code.
@@ -101,17 +101,6 @@ Product and repo-level documentation to establish contract and constraints.
 ```
 
 - Content safety as per this Microsoft Doco: <https://learn.microsoft.com/en-us/agent-framework/agents/safety> and related links from that page. Treat this as mandatory baseline behavior (tool input validation, trust-boundary controls, system-role isolation, and output sanitization), with middleware used as one implementation mechanism where appropriate. You can also look here for guidance: <C:\Users\RussellMcCloy\code\Blueprints\backend\Middleware\ContentSafety.cs>
-
-1.2. **Update `.github/copilot-instructions.md`** with implementation constraints:
-
-- Minimal code style
-- Event naming contract
-- Azure AI Search indexing/retrieval patterns
-
-1.3. **Update `AGENTS.md`** with execution workflow guidance:
-
-- Specific to this demo project
-- Handoff expectations and collaboration workflow
 
 ---
 
