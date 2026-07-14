@@ -1,203 +1,195 @@
 # Deployment Guide
 
-This document outlines how to deploy maf-demo to Azure using Bicep templates and GitHub Actions.
+This document explains how to deploy maf-demo infrastructure to Azure using the Bicep templates in infra and optional GitHub Actions workflows.
+
+## Current Scope
+
+- Infrastructure deployment is ready now.
+- Application runtime deployment from src is pending because the src directory is not yet present in this repo snapshot.
 
 ## Prerequisites
 
-- Azure subscription with access to `australiaeast` region
-- Azure CLI (`az` command)
-- Resource group `MAFDemo-rg` created in `australiaeast` (or permissions to create it)
-- Appropriate Azure role assignments (Contributor or equivalent)
+- Azure subscription with access to australiaeast
+- Azure CLI (az)
+- Permissions to create resources in resource group MAFDemo-rg
+- Optional: GitHub repository secrets for workflow-based deployment
 
-## Manual Deployment
+Recommended defaults from plan/spec:
+- Subscription: 52afa81a-5223-421c-8240-097df590b9fe
+- Resource group: MAFDemo-rg
+- Region: australiaeast
 
-### 1. Validate Bicep Templates
+## Manual Infrastructure Deployment
+
+### 1. Ensure resource group exists
 
 ```bash
-cd infra
+az group create \
+  --name MAFDemo-rg \
+  --location australiaeast
+```
 
-# Validate the Bicep template
-az bicep build --file main.bicep
+### 2. Validate templates
 
-# Preview what will be deployed (what-if)
+```bash
+az bicep build --file infra/main.bicep
+```
+
+### 3. Preview deployment
+
+```bash
 az deployment group what-if \
   --name maf-demo-what-if \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
   --resource-group MAFDemo-rg \
-  --template-file main.bicep \
-  --parameters environment=prod
+  --template-file infra/main.bicep \
+  --parameters @infra/main.parameters.json
 ```
 
-### 2. Deploy Infrastructure
+### 4. Deploy infrastructure
 
 ```bash
-# Deploy resources to the resource group
 az deployment group create \
   --name maf-demo-deployment \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
   --resource-group MAFDemo-rg \
-  --template-file main.bicep \
-  --parameters environment=prod
+  --template-file infra/main.bicep \
+  --parameters @infra/main.parameters.json
 ```
 
-### 3. Retrieve Outputs
+### 5. Review outputs
 
 ```bash
-# Get deployment outputs (endpoints, keys, etc.)
 az deployment group show \
   --name maf-demo-deployment \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
   --resource-group MAFDemo-rg \
   --query properties.outputs
 ```
 
-### 4. Configure App Settings
+Outputs include app service name/url plus service endpoints.
 
-Update App Service configuration with outputs:
+## App Configuration Notes
+
+The infra template already sets these required app settings on the Web App:
+
+- AzureOpenAI__Endpoint
+- AzureOpenAI__Key
+- AzureOpenAI__ModelDeploymentName
+- CosmosDb__Endpoint
+- CosmosDb__Key
+- CosmosDb__DatabaseName
+- CosmosDb__SessionsContainerName
+- CosmosDb__MessagesContainerName
+- CosmosDb__DocumentsContainerName
+- AzureSearch__Endpoint
+- AzureSearch__Key
+- AzureSearch__IndexName
+
+If you need to override values manually:
 
 ```bash
-# Example (adjust based on deployment outputs)
 az webapp config appsettings set \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
   --resource-group MAFDemo-rg \
-  --name maf-demo-api \
+  --name <app-service-name> \
   --settings \
-    AzureOpenAI__Endpoint="https://..." \
-    AzureOpenAI__Key="..." \
-    CosmosDb__Endpoint="https://..." \
-    CosmosDb__Key="..." \
-    AzureSearch__Endpoint="https://..." \
-    AzureSearch__Key="..."
+    AzureOpenAI__Endpoint="https://<resource>.openai.azure.com/" \
+    AzureOpenAI__Key="<key>" \
+    AzureOpenAI__ModelDeploymentName="gpt-5.4"
 ```
 
-### 5. Deploy Application
+## Application Deployment Status
 
-Build and deploy the ASP.NET Core app:
+Application deployment commands are intentionally not included here yet because src/MafDemo.Api is not present.
 
-```bash
-cd ../src/MafDemo.Api
+When runtime code is added, deployment should use:
 
-# Publish
-dotnet publish -c Release -o ./publish
+1. dotnet publish to create app artifacts
+2. zip artifact creation
+3. az webapp deployment source config-zip against the deployed app service name
 
-# Deploy to App Service (adjust app name as needed)
-az webapp deployment source config-zip \
-  --resource-group MAFDemo-rg \
-  --name maf-demo-api \
-  --src publish.zip
-```
+## GitHub Actions
 
-## Automated Deployment via GitHub Actions
+Workflows currently in this repo:
 
-### 1. Configure GitHub Secrets
+- .github/workflows/validate.yml
+- .github/workflows/deploy-infra.yml
+- .github/workflows/deploy-app.yml
 
-Add the following secrets to your repository (`Settings` → `Secrets and variables` → `Actions`):
+Required secrets:
 
-- `AZURE_SUBSCRIPTION_ID` — Azure subscription ID
-- `AZURE_RESOURCE_GROUP` — Resource group name (e.g., `MAFDemo-rg`)
-- `AZURE_CREDENTIALS` — Service Principal credentials (JSON format)
+- AZURE_SUBSCRIPTION_ID
+- AZURE_RESOURCE_GROUP
+- AZURE_CREDENTIALS
 
-#### Create Service Principal
+Create service principal:
 
 ```bash
 az ad sp create-for-rbac \
   --name "maf-demo-github-actions" \
   --role Contributor \
-  --scopes /subscriptions/{SUBSCRIPTION_ID}/resourceGroups/MAFDemo-rg \
+  --scopes /subscriptions/52afa81a-5223-421c-8240-097df590b9fe/resourceGroups/MAFDemo-rg \
   --json-auth
 ```
 
-Copy the output as the `AZURE_CREDENTIALS` secret.
+## Rollback and Cleanup
 
-### 2. Review Workflow Files
-
-Workflows are located in `.github/workflows/`:
-
-- **`validate.yml`** — Validates Bicep templates (runs on PR)
-- **`deploy-infra.yml`** — Deploys infrastructure (runs on merge to `main`)
-- **`deploy-app.yml`** — Builds and deploys app (runs after infra on merge to `main`)
-
-### 3. Trigger Workflows
-
-Workflows run automatically on:
-- **Pull requests** → Run validation
-- **Merge to main** → Run full deployment (infra + app)
-
-Manually trigger:
-
-```bash
-# Trigger workflow from CLI
-gh workflow run deploy-infra.yml
-```
-
-## Rollback
-
-### Rollback Infrastructure
+Delete deployment history record only:
 
 ```bash
 az deployment group delete \
-  --resource-group MAFDemo-rg \
-  --name maf-demo-deployment
+  --name maf-demo-deployment \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
+  --resource-group MAFDemo-rg
 ```
 
-### Rollback Application
-
-Revert to a previous deployment slot or re-deploy previous app version:
+Delete all deployed resources (destructive):
 
 ```bash
-az webapp deployment slot swap \
-  --resource-group MAFDemo-rg \
-  --name maf-demo-api \
-  --slot staging
+az group delete \
+  --name MAFDemo-rg \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
+  --yes \
+  --no-wait
 ```
 
-## Monitoring and Validation
+## Validation and Troubleshooting
 
-### Check Deployment Status
-
-```bash
-az deployment group list \
-  --resource-group MAFDemo-rg \
-  --query '[].{name:name, state:properties.provisioningState}'
-```
-
-### Verify Resources
+Check resource inventory:
 
 ```bash
-# List all resources in the resource group
 az resource list \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
   --resource-group MAFDemo-rg \
   --output table
 ```
 
-### Check App Logs
+Check app logs:
 
 ```bash
-# Stream app logs
 az webapp log tail \
+  --subscription 52afa81a-5223-421c-8240-097df590b9fe \
   --resource-group MAFDemo-rg \
-  --name maf-demo-api
+  --name <app-service-name>
 ```
 
-## Troubleshooting
+Common issues:
 
-| Issue | Solution |
-|-------|----------|
-| gpt-5.4 deployment fails | Check region/subscription quota. gpt-5.4 GlobalStandard may not be available in all regions. |
-| Cosmos DB creation fails | Verify free-tier eligibility in your subscription. |
-| Azure AI Search quota exceeded | Check pricing tier and adjust SKU if needed. |
-| App Service deployment fails | Check logs: `az webapp log tail` |
-| Missing configuration | Ensure all required app settings are set before app start. |
+| Issue | Suggested action |
+|-------|------------------|
+| gpt-5.4 deployment fails | Check region availability/quota for GlobalStandard in australiaeast. |
+| Cosmos DB free tier conflict | Free tier is subscription-limited; disable free tier or use another subscription. |
+| Search SKU quota issue | Change searchSku in infra/main.parameters.json. |
+| App fails on startup | Confirm required settings are present, especially AzureOpenAI__ModelDeploymentName. |
 
 ## Costs
 
-Be aware of potential costs:
-- **Azure OpenAI** — Model inference usage (not free tier)
-- **Azure AI Search** — Service charges (minimal for demo scale)
-- **Cosmos DB** — Storage and RU consumption
-- **App Service Plan** — Free tier available (F1) with limitations
+Potential charges:
 
-See `docs/spec.md` section 10 for cost details.
+- Azure OpenAI inference (not free tier)
+- Azure AI Search service tier
+- Cosmos DB storage and throughput
+- App Service plan
 
-## Next Steps
-
-After deployment:
-1. Access app at App Service URL
-2. Follow verification checklist in [`docs/plans/maf-demo-build-plan.md`](docs/plans/maf-demo-build-plan.md#-verification-checklist)
-3. Test chat, RAG, and tool invocation end-to-end
+See docs/spec.md section 10 for cost constraints.

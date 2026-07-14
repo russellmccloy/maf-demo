@@ -1,6 +1,6 @@
-# MAF Demo Specification
+# MAF Demo Specification 🚀
 
-## 1. Goal
+## 1. Goal 🎯
 
 Build a standalone, minimal demo app that shows the core Microsoft Agent Framework patterns used in Blueprints, especially the BuildAgentCore-style pipeline, while staying simple enough for live demos and onboarding.
 
@@ -15,14 +15,14 @@ The app must:
 - Stream full server events to the UI over SSE, including tool lifecycle events.
 - Include infra Bicep in an infra folder at repo root.
 
-## 2. Audience
+## 2. Audience 👥
 
 - Primary: internal developers and architects reviewing MAF patterns.
 - Secondary: onboarding developers who need a small, readable reference implementation.
 
-## 3. Scope
+## 3. Scope 📌
 
-### In scope
+### In scope ✅
 
 - Single ASP.NET Core app hosting both API and static UI.
 - BuildAgentCore-inspired runtime composition for chat, tools, and streaming.
@@ -32,23 +32,23 @@ The app must:
 - SSE event stream from backend to UI with typed event names.
 - Azure Bicep templates for deployable demo infrastructure.
 
-### Out of scope (v1)
+### Out of scope (v1) 🚫
 
 - Hosted Foundry agent runtime in application code.
 - Complex or experimental safety frameworks beyond documented Agent Framework safety best practices.
 - Multi-index or advanced search topology.
 - Multi-region deployment patterns.
 
-## 4. Functional Requirements
+## 4. Functional Requirements ⚙️
 
-### FR-1 Chat runtime
+### FR-1 Chat runtime 💬
 
 - The backend shall run user turns through a MAF agent pipeline inspired by BuildAgentCore.
 - The backend shall use the Azure OpenAI Responses API endpoint and deployment model configuration using direct endpoint calls.
 - The backend shall fail startup or request execution when required OpenAI configuration is missing.
 - The backend shall compose the runtime using a declarative builder pipeline pattern for agent, middleware, context providers, tools, and telemetry.
 
-### FR-2 Streaming contract
+### FR-2 Streaming contract 📡
 
 - The backend shall expose a streaming endpoint using text/event-stream.
 - The backend shall emit these event types:
@@ -64,13 +64,13 @@ The app must:
   - error
 - The backend shall send heartbeat events during long-running turns.
 
-### FR-3 Tooling
+### FR-3 Tooling 🛠️
 
 - The app shall define a ToolRegistry abstraction with stable tool IDs.
 - The app shall include at least two simple tools for demos (for example utc_now and echo).
 - Tool lifecycle shall be surfaced in SSE events.
 
-### FR-4 Chat persistence
+### FR-4 Chat persistence 💾
 
 - The app shall store chat sessions and messages in Cosmos DB through ChatHistoryProvider-based persistence.
 - The app shall support reloading an existing session history.
@@ -78,20 +78,20 @@ The app must:
 - The ChatHistoryProvider implementation shall be stateless per provider instance and keep session-specific values in AgentSession state.
 - The runtime shall support per-service-call history persistence behavior when needed for tool-loop resiliency.
 
-### FR-4.1 Conversation compaction
+### FR-4.1 Conversation compaction 🗜️
 
 - The app shall include compaction as a mandatory runtime capability.
 - The compaction design shall follow Agent Framework compaction guidance and be explicitly configured in the runtime pipeline.
 - The app shall document trigger strategy and summarizer model usage for compaction behavior.
 
-### FR-5 RAG with Azure AI Search
+### FR-5 RAG with Azure AI Search 🔎
 
 - The app shall allow upload of txt and md files.
 - The app shall chunk uploaded text using a simple, deterministic strategy.
 - The app shall index chunks and metadata into Azure AI Search.
 - The app shall retrieve top-k chunks from Azure AI Search and attach retrieval metadata to retrievalUsed events.
 
-### FR-5.1 Safety controls
+### FR-5.1 Safety controls 🛡️
 
 - The app shall apply Agent Framework safety best-practice controls as mandatory requirements.
 - Tool arguments supplied by the model shall be treated as untrusted input and validated per tool.
@@ -99,10 +99,10 @@ The app must:
 - The app shall keep system-role instructions developer-controlled and never inject end-user input into system role messages.
 - The app shall sanitize model and tool output before rendering in UI or passing into sensitive sinks.
 
-### FR-6 Infrastructure
+### FR-6 Infrastructure 🏗️
 
 - Bicep files shall exist under infra and support deployment to:
-  - Subscription: xxxxxxx-90b9fe
+  - Subscription: 52afa81a-5223-421c-8240-097df590b9fe
   - Resource Group: MAFDemo-rg
   - Region: australiaeast
 - Infra shall include:
@@ -113,14 +113,14 @@ The app must:
   - Azure OpenAI resource and gpt-5.4 GlobalStandard deployment
 - gpt-5.4 deployment is strict for v1. If deployment cannot be created, deployment fails (no fallback model).
 
-## 5. Non-Functional Requirements
+## 5. Non-Functional Requirements 📏
 
 - Code should be intentionally simple and spacious for demo readability.
 - Keep architecture modular enough to add optional advanced features later.
 - Use clear naming and small classes/files over dense abstractions.
 - Ensure local and deployed environments follow the same event contract.
 
-## 6. Data Model (minimum)
+## 6. Data Model (minimum) 🗂️
 
 - ChatSession
   - id
@@ -143,7 +143,7 @@ The app must:
   - chunkText
   - metadata
 
-## 7. API Surface (minimum)
+## 7. API Surface (minimum) 🌐
 
 - POST stream chat turn endpoint (SSE response).
 - POST upload document endpoint.
@@ -151,7 +151,7 @@ The app must:
 
 Exact routes are implementation-defined but must remain stable once first UI integration is complete.
 
-## 8. Configuration
+## 8. Configuration ⚙️
 
 Required app settings:
 
@@ -161,7 +161,7 @@ Required app settings:
 - Cosmos DB connection and container settings
 - Azure AI Search endpoint, key, and index name
 
-## 9. Acceptance Criteria
+## 9. Acceptance Criteria ✅
 
 The demo is accepted when all conditions are met:
 
@@ -175,13 +175,13 @@ The demo is accepted when all conditions are met:
 8. Bicep deploys required resources to MAFDemo-rg in australiaeast.
 9. The app successfully calls gpt-5.4 via Responses API.
 
-## 10. Risks and Constraints
+## 10. Risks and Constraints ⚠️
 
 - Azure OpenAI usage is not free tier.
 - Azure AI Search has cost implications and should be sized minimally for the demo.
 - Cosmos free tier eligibility is subscription-limited.
 
-## 11. References
+## 11. References 📚
 
 - Plan document: docs/plans/maf-demo-build-plan.md
 - MAF technology reference: docs/assisting-docs/maf-technologies.md

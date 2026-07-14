@@ -25,6 +25,22 @@ Follow documents in this order when there is conflict:
 - If requirements change, update spec and plan first, then implementation.
 - Keep implementation constraints in one place: `.github/copilot-instructions.md`.
 
+## MCP Tool Usage
+
+Always use these MCP servers when relevant:
+
+- `mcp_context7_query-docs` — fetch up-to-date library and framework documentation before writing or reviewing code that uses any external SDK, API, or framework.
+
+Use these additional Azure MCP servers as needed:
+
+- `mcp_azure_mcp_ser_cosmos` — query or manage Azure Cosmos DB resources.
+- `mcp_azure_mcp_ser_monitor` — retrieve logs, metrics, and alerts from Azure Monitor.
+- `mcp_azure_mcp_ser_deploy` — execute or inspect Azure deployments.
+- `mcp_azure_mcp_ser_get_azure_bestpractices` — consult Azure best practices before generating Azure resource code or IaC.
+- `mcp_azure_mcp_ser_cloudarchitect` — get architectural guidance for Azure solutions.
+
+When in doubt about which Azure MCP to use, check the tool name prefix (`mcp_azure_mcp_ser_<service>`) that matches the Azure service being worked on.
+
 ## Chat Handoff
 
 - When a user asks to "switch to a new chat" or says "handoff" or "handover", use `changing-context.txt`.

@@ -15,11 +15,12 @@ A planned reference implementation demonstrating:
 
 ## 📋 Current Status
 
-This repository currently contains product docs, plan docs, and workflow scaffolding.
+This repository currently contains product docs, plan docs, workflow scaffolding, and initial infrastructure templates.
 
 - Product requirements are defined in `docs/spec.md`.
 - Implementation order is defined in `docs/plans/maf-demo-build-plan.md`.
-- Runtime and infrastructure code directories (`src/` and `infra/`) are planned but not yet present in this repo snapshot.
+- Infrastructure templates are available under `infra/`.
+- Runtime application code under `src/` is still planned.
 
 ## 📋 Quick Start
 
@@ -56,6 +57,10 @@ Read in this order:
 
 ```markdown
 maf-demo/
+├── infra/
+│   ├── main.bicep            # Root deployment composition
+│   ├── main.parameters.json  # Default deployment parameters
+│   └── modules/              # App Service, Cosmos DB, Search, OpenAI modules
 ├── docs/
 │   ├── spec.md               # Requirements and acceptance criteria
 │   ├── plans/
@@ -71,7 +76,6 @@ maf-demo/
 Planned directories (not yet present in this snapshot):
 
 - `src/` for application code
-- `infra/` for Bicep templates
 
 ## 🔑 Target Features
 
@@ -94,7 +98,7 @@ Planned directories (not yet present in this snapshot):
 
 ### Infrastructure
 
-- **Bicep templates** under `infra/` (planned)
+- **Bicep templates** under `infra/`
 - Target: `australiaeast` region, `MAFDemo-rg` resource group
 - Resources: App Service, Cosmos DB, Azure AI Search, Azure OpenAI (gpt-5.4)
 
@@ -102,9 +106,7 @@ Planned directories (not yet present in this snapshot):
 
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for deployment guidance and workflow intent.
 
-Note: deployment commands assume `infra/` and application artifacts exist.
-
-Quick reference becomes applicable once infrastructure templates are added.
+Note: deployment commands for app release still assume application artifacts exist.
 
 ## 🧪 Validation
 

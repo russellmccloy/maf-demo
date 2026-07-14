@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "prod"
+    },
+    "location": {
+      "value": "australiaeast"
+    },
+    "prefix": {
+      "value": "mafdemo"
+    },
+    "openAiDeploymentName": {
+      "value": "gpt-5.4"
+    },
+    "openAiModelName": {
+      "value": "gpt-5.4"
+    },
+    "openAiModelVersion": {
+      "value": "1"
+    },
+    "openAiDeploymentSkuName": {
+      "value": "GlobalStandard"
+    },
+    "openAiDeploymentCapacity": {
+      "value": 1
+    },
+    "searchSku": {
+      "value": "basic"
+    },
+    "appServicePlanSkuName": {
+      "value": "F1"
+    },
+    "cosmosDatabaseName": {
+      "value": "maf-demo-db"
+    },
+    "sessionsContainerName": {
+      "value": "sessions"
+    },
+    "messagesContainerName": {
+      "value": "messages"
+    },
+    "documentsContainerName": {
+      "value": "documents"
+    },
+    "searchIndexName": {
+      "value": "rag-documents"
+    }
+  }
+}
