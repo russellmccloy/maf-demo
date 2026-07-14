@@ -1,0 +1,17 @@
+using './main.bicep'
+
+param environment = 'prod'
+param location = 'australiaeast'
+param prefix = 'mafdemo'
+param openAiDeploymentName = 'gpt-5.4'
+param openAiModelName = 'gpt-5.4'
+param openAiModelVersion = '2026-03-05'
+param openAiDeploymentSkuName = 'GlobalBatch'
+param openAiDeploymentCapacity = 250
+param searchSku = 'basic'
+param appServicePlanSkuName = 'F1'
+param cosmosDatabaseName = 'maf-demo-db'
+param sessionsContainerName = 'sessions'
+param messagesContainerName = 'messages'
+param documentsContainerName = 'documents'
+param searchIndexName = 'rag-documents'
