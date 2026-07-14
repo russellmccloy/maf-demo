@@ -1,7 +1,7 @@
 {
     "git.enabled": true,
     "workbench.colorCustomizations": {
-        "statusBar.background": "#046334",
+        "statusBar.background": "#ee1532",
         "statusBar.foreground": "#ffffff"
     }
 }

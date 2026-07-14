@@ -2,24 +2,28 @@
 
 This repository is currently operated with the default coding agent.
 
+## Purpose
+
+This file defines collaboration workflow for humans and coding agents.
+It is not an implementation spec.
+
+## Source of Truth Order
+
+Follow documents in this order when there is conflict:
+
+1. `docs/spec.md` (product requirements)
+2. `docs/plans/maf-demo-build-plan.md` (delivery order and verification)
+3. `.github/copilot-instructions.md` (coding guardrails)
+4. `AGENTS.md` (workflow and handoff)
+
 ## Working Rules
 
-- Follow `docs/spec.md` as the product source of truth.
-- Follow `.github/copilot-instructions.md` for implementation and structure.
-- Prefer minimal, validated changes over broad scaffolding.
-- Treat your audience, including me, as a junior developer who is quite smart and has been out of university for 2 years and has been working in the industry. They like simple English.
-
-## Project Workflow
-
 - Build and explain features in this order: spec -> plan -> implementation.
-- Keep the app as a single ASP.NET Core deployable unit (API + static UI).
-- Use Azure OpenAI Responses API with `gpt-5.4` as the required model deployment.
-- Persist chat sessions/messages in Cosmos DB.
-- Use Azure AI Search for document indexing and retrieval (RAG).
-- Treat SSE event names as a stable contract between backend and UI.
-- Keep code simple and spacious for demo purposes; avoid advanced abstractions unless requested.
-- Keep `docs/spec.md`, `docs/plans/maf-demo-build-plan.md`, and `.github/copilot-instructions.md` in sync when requirements change.
-- Infra changes must include Bicep updates under `infra/`.
+- Prefer minimal, validated changes over broad scaffolding.
+- Keep explanations in simple English for a junior-but-capable developer audience.
+- Avoid adding new behavior that is not justified by spec or plan.
+- If requirements change, update spec and plan first, then implementation.
+- Keep implementation constraints in one place: `.github/copilot-instructions.md`.
 
 ## Chat Handoff
 

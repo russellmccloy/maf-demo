@@ -7,6 +7,8 @@ Build a standalone, minimal demo app that shows the core Microsoft Agent Framewo
 The app must:
 
 - Use Azure OpenAI Responses API for all model calls.
+- Use direct Azure OpenAI endpoint-based integration in code (no Foundry agent runtime dependency).
+- Allow the Azure OpenAI endpoint to be provisioned from Foundry, but treat it as a standard Azure OpenAI endpoint at runtime.
 - Use gpt-5.4 as the required model deployment.
 - Persist chat data in Cosmos DB.
 - Use Azure AI Search for document indexing and retrieval (RAG).
@@ -32,8 +34,8 @@ The app must:
 
 ### Out of scope (v1)
 
-- Advanced conversation compaction strategies.
-- Complex content safety middleware pipeline.
+- Hosted Foundry agent runtime in application code.
+- Complex or experimental safety frameworks beyond documented Agent Framework safety best practices.
 - Multi-index or advanced search topology.
 - Multi-region deployment patterns.
 
@@ -42,8 +44,9 @@ The app must:
 ### FR-1 Chat runtime
 
 - The backend shall run user turns through a MAF agent pipeline inspired by BuildAgentCore.
-- The backend shall use the Azure OpenAI Responses API endpoint and deployment model configuration.
+- The backend shall use the Azure OpenAI Responses API endpoint and deployment model configuration using direct endpoint calls.
 - The backend shall fail startup or request execution when required OpenAI configuration is missing.
+- The backend shall compose the runtime using a declarative builder pipeline pattern for agent, middleware, context providers, tools, and telemetry.
 
 ### FR-2 Streaming contract
 
@@ -71,6 +74,15 @@ The app must:
 
 - The app shall store chat sessions and messages in Cosmos DB.
 - The app shall support reloading an existing session history.
+- The app shall implement chat history persistence through ChatHistoryProvider-based wiring.
+- The ChatHistoryProvider implementation shall be stateless per provider instance and keep session-specific values in AgentSession state.
+- The runtime shall support per-service-call history persistence behavior when needed for tool-loop resiliency.
+
+### FR-4.1 Conversation compaction
+
+- The app shall include compaction as a mandatory runtime capability.
+- The compaction design shall follow Agent Framework compaction guidance and be explicitly configured in the runtime pipeline.
+- The app shall document trigger strategy and summarizer model usage for compaction behavior.
 
 ### FR-5 RAG with Azure AI Search
 
@@ -78,6 +90,14 @@ The app must:
 - The app shall chunk uploaded text using a simple, deterministic strategy.
 - The app shall index chunks and metadata into Azure AI Search.
 - The app shall retrieve top-k chunks from Azure AI Search and attach retrieval metadata to retrievalUsed events.
+
+### FR-5.1 Safety controls
+
+- The app shall apply Agent Framework safety best-practice controls as mandatory requirements.
+- Tool arguments supplied by the model shall be treated as untrusted input and validated per tool.
+- High-risk tools shall require explicit approval or equivalent guardrails.
+- The app shall keep system-role instructions developer-controlled and never inject end-user input into system role messages.
+- The app shall sanitize model and tool output before rendering in UI or passing into sensitive sinks.
 
 ### FR-6 Infrastructure
 
@@ -90,7 +110,7 @@ The app must:
   - Web App
   - Cosmos DB account, database, and containers
   - Azure AI Search service
-  - Azure OpenAI/Foundry resource and gpt-5.4 GlobalStandard deployment
+  - Azure OpenAI resource and gpt-5.4 GlobalStandard deployment
 - gpt-5.4 deployment is strict for v1. If deployment cannot be created, deployment fails (no fallback model).
 
 ## 5. Non-Functional Requirements
@@ -150,8 +170,10 @@ The demo is accepted when all conditions are met:
 3. A tool invocation emits toolStarted and toolCompleted (or toolFailed).
 4. A grounded prompt emits retrievalUsed with Azure AI Search context details.
 5. Chat sessions and messages are persisted and can be reloaded.
-6. Bicep deploys required resources to MAFDemo-rg in australiaeast.
-7. The app successfully calls gpt-5.4 via Responses API.
+6. Compaction is active and demonstrably reduces long-turn history according to configured triggers.
+7. Safety controls are active: tool input validation and system-role isolation are verifiable in implementation.
+8. Bicep deploys required resources to MAFDemo-rg in australiaeast.
+9. The app successfully calls gpt-5.4 via Responses API.
 
 ## 10. Risks and Constraints
 
@@ -163,3 +185,7 @@ The demo is accepted when all conditions are met:
 
 - Plan document: docs/plans/maf-demo-build-plan.md
 - MAF technology reference: docs/assisting-docs/maf-technologies.md
+- Azure OpenAI Responses API docs: https://learn.microsoft.com/azure/foundry/openai/how-to/responses
+- Agent Framework ChatHistoryProvider docs: https://learn.microsoft.com/dotnet/api/microsoft.agents.ai.chathistoryprovider?view=agent-framework-dotnet-latest
+- Agent Framework compaction docs: https://learn.microsoft.com/agent-framework/agents/conversations/compaction
+- Agent Framework safety docs: https://learn.microsoft.com/agent-framework/agents/safety
